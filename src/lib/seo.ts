@@ -23,3 +23,26 @@ export function setSEO({ title, description, canonical }: { title: string; descr
     link.href = canonical;
   }
 }
+
+export function generateSEOTags({ title, description, path }: { title: string; description: string; path: string }) {
+  // Set document title and meta tags directly instead of returning JSX
+  document.title = title;
+  
+  let meta = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'description';
+    document.head.appendChild(meta);
+  }
+  meta.content = description;
+
+  let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'canonical';
+    document.head.appendChild(link);
+  }
+  link.href = `${window.location.origin}${path}`;
+  
+  return null;
+}
