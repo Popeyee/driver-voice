@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, Plus } from "lucide-react";
+import { Menu, X, User, Plus, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { AuthModal } from "./AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <motion.nav 
@@ -25,22 +25,41 @@ export const Navigation = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
-          <a href="#stories" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/stories" className="text-muted-foreground hover:text-foreground transition-colors">
             Stories
-          </a>
-          <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
+          </Link>
+          <Link to="/#about" className="text-muted-foreground hover:text-foreground transition-colors">
             About
-          </a>
-          <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
-            <User className="w-4 h-4 mr-2" />
-            Sign In
-          </Button>
-          <Button size="sm" asChild>
-            <Link to="/share-story">
-              <Plus className="w-4 h-4 mr-2" />
-              Share Story
-            </Link>
-          </Button>
+          </Link>
+          {user ? (
+            <>
+              <Button size="sm" asChild>
+                <Link to="/share-story">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Share Story
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={signOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/auth">
+                  <User className="w-4 h-4 mr-2" />
+                  Sign In
+                </Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/share-story">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Share Story
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -60,30 +79,47 @@ export const Navigation = () => {
             className="absolute top-full left-0 right-0 bg-background border-b border-border md:hidden"
           >
             <div className="container py-4 space-y-4">
-              <a href="#stories" className="block text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/stories" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Stories
-              </a>
-              <a href="#about" className="block text-muted-foreground hover:text-foreground transition-colors">
+              </Link>
+              <Link to="/#about" className="block text-muted-foreground hover:text-foreground transition-colors">
                 About
-              </a>
+              </Link>
               <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
-                  <User className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
-                <Button size="sm" asChild>
-                  <Link to="/share-story">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Share Story
-                  </Link>
-                </Button>
+                {user ? (
+                  <>
+                    <Button size="sm" asChild>
+                      <Link to="/share-story" onClick={() => setIsOpen(false)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Share Story
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => { signOut(); setIsOpen(false); }}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/auth" onClick={() => setIsOpen(false)}>
+                        <User className="w-4 h-4 mr-2" />
+                        Sign In
+                      </Link>
+                    </Button>
+                    <Button size="sm" asChild>
+                      <Link to="/share-story" onClick={() => setIsOpen(false)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Share Story
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
         )}
       </div>
-      
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </motion.nav>
   );
 };
