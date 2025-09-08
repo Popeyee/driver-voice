@@ -25,12 +25,12 @@ export const Navigation = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
-          <a href="#stories" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/stories" className="text-muted-foreground hover:text-foreground transition-colors">
             Stories
-          </a>
-          <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
+          </Link>
+          <Link to="/#about" className="text-muted-foreground hover:text-foreground transition-colors">
             About
-          </a>
+          </Link>
           <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
             <User className="w-4 h-4 mr-2" />
             Sign In
@@ -60,12 +60,12 @@ export const Navigation = () => {
             className="absolute top-full left-0 right-0 bg-background border-b border-border md:hidden"
           >
             <div className="container py-4 space-y-4">
-              <a href="#stories" className="block text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/stories" className="block text-muted-foreground hover:text-foreground transition-colors">
                 Stories
-              </a>
-              <a href="#about" className="block text-muted-foreground hover:text-foreground transition-colors">
+              </Link>
+              <Link to="/#about" className="block text-muted-foreground hover:text-foreground transition-colors">
                 About
-              </a>
+              </Link>
               <div className="flex flex-col space-y-2 pt-4">
                 <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
                   <User className="w-4 h-4 mr-2" />
