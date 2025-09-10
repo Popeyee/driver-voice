@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/select";
 import { Upload, Eye, Send, Image, Video } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const categories = [
   "Unfair Pay",
@@ -31,9 +33,11 @@ export const StoryForm = () => {
     mediaFiles: [] as File[],
   });
   const [isPreview, setIsPreview] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title || !formData.story || !formData.category) {
@@ -45,19 +49,76 @@ export const StoryForm = () => {
       return;
     }
 
-    toast({
-      title: "Story Submitted Successfully!",
-      description:
-        "Your story has been submitted for review. You'll receive an email when it's published.",
-    });
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to submit your story.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    setFormData({
-      title: "",
-      story: "",
-      category: "",
-      mediaFiles: [],
-    });
-    setIsPreview(false);
+    setIsSubmitting(true);
+
+    try {
+      const mediaUrls: string[] = [];
+
+      // Upload media files if any
+      if (formData.mediaFiles.length > 0) {
+        for (const file of formData.mediaFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('story-media')
+            .upload(fileName, file);
+
+          if (uploadError) {
+            throw uploadError;
+          }
+
+          mediaUrls.push(fileName);
+        }
+      }
+
+      // Insert story into database
+      const { error: insertError } = await supabase
+        .from('stories')
+        .insert({
+          user_id: user.id,
+          title: formData.title,
+          content: formData.story,
+          category: formData.category,
+          media_files: mediaUrls,
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      toast({
+        title: "Story Submitted Successfully!",
+        description:
+          "Your story has been submitted for review. You'll receive an email when it's published.",
+      });
+
+      setFormData({
+        title: "",
+        story: "",
+        category: "",
+        mediaFiles: [],
+      });
+      setIsPreview(false);
+    } catch (error: any) {
+      console.error('Error submitting story:', error);
+      toast({
+        title: "Submission Failed",
+        description: error.message || "Failed to submit story. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,9 +190,13 @@ export const StoryForm = () => {
             >
               Edit Story
             </Button>
-            <Button onClick={handleSubmit} className="w-full sm:w-auto">
+            <Button 
+              onClick={handleSubmit} 
+              className="w-full sm:w-auto"
+              disabled={isSubmitting}
+            >
               <Send className="w-4 h-4 mr-2" />
-              Submit Story
+              {isSubmitting ? "Submitting..." : "Submit Story"}
             </Button>
           </div>
         </Card>
@@ -277,9 +342,13 @@ export const StoryForm = () => {
               <Eye className="w-4 h-4 mr-2" />
               Preview Story
             </Button>
-            <Button type="submit" className="w-full sm:w-auto">
+            <Button 
+              type="submit" 
+              className="w-full sm:w-auto"
+              disabled={isSubmitting}
+            >
               <Send className="w-4 h-4 mr-2" />
-              Submit Story
+              {isSubmitting ? "Submitting..." : "Submit Story"}
             </Button>
           </div>
         </form>
