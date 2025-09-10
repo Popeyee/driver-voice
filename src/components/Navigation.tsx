@@ -4,6 +4,7 @@ import { Menu, X, User, Plus, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +25,9 @@ export const Navigation = () => {
         </motion.div>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-4">
+          <ThemeToggle />
+          <div className="flex items-center space-x-8">
           <Link to="/stories" className="text-muted-foreground hover:text-foreground transition-colors">
             Stories
           </Link>
@@ -60,15 +63,19 @@ export const Navigation = () => {
               </Button>
             </>
           )}
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 text-muted-foreground hover:text-foreground"
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        <div className="md:hidden flex items-center space-x-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-2 text-muted-foreground hover:text-foreground"
+          >
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
