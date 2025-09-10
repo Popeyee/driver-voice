@@ -73,7 +73,7 @@ export const Hero = () => {
               className="text-lg px-8 py-4"
               asChild
             >
-              <Link to="#stories">Read Stories</Link>
+              <Link to="/stories">Read Stories</Link>
             </Button>
           </motion.div>
 
